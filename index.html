@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <link rel="icon" href="https://vclock.com/img/favicons/android-chrome-192x192.png" type="image/png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 50px;
+            color: #343a40;
+        }
+
+        .input-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #ccd3ca8e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 70px #f5e8dd;
+            text-align: center;
+        }
+
+        .input-container label {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .input-container input[type="datetime-local"] {
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            width: 250px;
+            background-color: #f8f9fa;
+            color: #495057;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-container input[type="datetime-local"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        #start-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            outline: none;
+        }
+
+        #start-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #timer {
+            font-size: 80px;
+            margin-top: 100px;
+            color: #dc3545;
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #ccd3ca8e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 70px #f5e8dd;
+            text-align: center;
+        }
+
+        #timer.show {
+            opacity: 1;
+        }
+
+        #timer.expired {
+            color: #6c757d;
+        }
+
+        #countdown-info {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #28a745;
+        }
+
+        /* Additional style for the clock */
+        #clock {
+            font-size: 36px;
+            margin-top: 50px;
+            color: #343a40;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Countdown Timer</h1>
+
+    <div class="input-container" id="input-container">
+        <label for="datetime">Choose Date and Time:</label>
+        <input type="datetime-local" id="datetime" name="datetime" aria-label="Choose Date and Time">
+    </div>
+
+    <button id="start-btn" aria-label="Start Countdown" onclick="startCountdown()">Start Countdown</button>
+
+    <div id="timer" aria-live="polite" role="timer" aria-atomic="true"></div>
+
+    <p id="countdown-info"></p>
+
+    <!-- JavaScript moved to bottom of the body -->
+    <script>
+        function startCountdown() {
+            document.getElementById('input-container').style.display = 'none';
+            document.getElementById('start-btn').style.display = 'none';
+
+            const timer = document.getElementById('timer');
+            timer.style.display = 'block';
+            setTimeout(() => timer.classList.add('show'), 100);
+
+            const selectedDateTime = new Date(document.getElementById('datetime').value).getTime();
+
+            const countdown = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = selectedDateTime - now;
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                const countdownTitle = `${days}d ${hours}h ${minutes}m ${seconds}s until expiry`;
+                document.title = countdownTitle;
+
+                const countdownStartTime = new Date(selectedDateTime).toLocaleString();
+                document.getElementById('countdown-info').innerText = `Countdown will start at: ${countdownStartTime}`;
+
+                if (distance < 0) {
+                    clearInterval(countdown);
+                    timer.innerHTML = 'EXPIRED';
+                    timer.classList.add('expired');
+                    document.title = 'Countdown Expired';
+                }
+            }, 1000);
+        }
+
+    </script>
+
+    <!-- Add a clock -->
+    <div id="clock">
+        <script>
+            function displayTime() {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            // Update time every second
+            setInterval(displayTime, 1000);
+
+            // Initial display
+            displayTime();
+
+        </script>
+    </div>
+
+</body>
+
+</html>
