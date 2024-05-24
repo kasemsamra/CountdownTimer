@@ -4,20 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown Timer</title>
+    <title>Countdown Time</title>
     <link rel="icon" href="https://vclock.com/img/favicons/android-chrome-192x192.png" type="image/png">
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f8f9fa;
+            background-color: black;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         h1 {
             margin-top: 50px;
             color: #343a40;
+            animation: rgbText 5s infinite;
+        }
+
+        @keyframes rgbText {
+            0% {
+                color: #ff0000;
+            }
+            14% {
+                color: #ff7f00;
+            }
+            28% {
+                color: #ffff00;
+            }
+            42% {
+                color: #7fff00;
+            }
+            57% {
+                color: #00ff00;
+            }
+            71% {
+                color: #00ff7f;
+            }
+            85% {
+                color: #00ffff;
+            }
+            100% {
+                color: #007fff;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0 20px;
         }
 
         .input-container {
@@ -45,7 +83,8 @@
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 5px;
-            width: 250px;
+            width: 100%;
+            max-width: 250px;
             background-color: #f8f9fa;
             color: #495057;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -89,6 +128,7 @@
             border-radius: 8px;
             box-shadow: 0px 0px 70px #f5e8dd;
             text-align: center;
+            animation: rgbText 5s infinite;
         }
 
         #timer.show {
@@ -105,31 +145,40 @@
             color: #28a745;
         }
 
-        /* Additional style for the clock */
         #clock {
             font-size: 36px;
             margin-top: 50px;
             color: #343a40;
+            animation: rgbText 5s infinite;
+        }
+
+        @media (max-width: 600px) {
+            #timer {
+                font-size: 40px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Countdown Timer</h1>
+    <div class="container">
+        <h1>Countdown Timer</h1>
 
-    <div class="input-container" id="input-container">
-        <label for="datetime">Choose Date and Time:</label>
-        <input type="datetime-local" id="datetime" name="datetime" aria-label="Choose Date and Time">
+        <div class="input-container" id="input-container">
+            <label for="datetime">Choose Date and Time:</label>
+            <input type="datetime-local" id="datetime" name="datetime" aria-label="Choose Date and Time">
+        </div>
+
+        <button id="start-btn" aria-label="Start Countdown" onclick="startCountdown()">Start Countdown</button>
+
+        <div id="timer" aria-live="polite" role="timer" aria-atomic="true"></div>
+
+        <p id="countdown-info"></p>
+
+        <div id="clock"></div>
     </div>
 
-    <button id="start-btn" aria-label="Start Countdown" onclick="startCountdown()">Start Countdown</button>
-
-    <div id="timer" aria-live="polite" role="timer" aria-atomic="true"></div>
-
-    <p id="countdown-info"></p>
-
-    <!-- JavaScript moved to bottom of the body -->
     <script>
         function startCountdown() {
             document.getElementById('input-container').style.display = 'none';
@@ -156,7 +205,7 @@
                 document.title = countdownTitle;
 
                 const countdownStartTime = new Date(selectedDateTime).toLocaleString();
-                document.getElementById('countdown-info').innerText = `Countdown will start at: ${countdownStartTime}`;
+                document.getElementById('countdown-info').innerText = `Countdown will End at: ${countdownStartTime}`;
 
                 if (distance < 0) {
                     clearInterval(countdown);
@@ -167,27 +216,25 @@
             }, 1000);
         }
 
+        function displayTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        setInterval(displayTime, 1000);
+
+        displayTime();
+
+        function breakReminder() {
+            alert('Time for a 10-minute break!');
+        }
+
+    
+        setInterval(breakReminder, 2 * 60 * 60 * 1000);
     </script>
-
-    <!-- Add a clock -->
-    <div id="clock">
-        <script>
-            function displayTime() {
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const seconds = now.getSeconds().toString().padStart(2, '0');
-                document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-            }
-
-            // Update time every second
-            setInterval(displayTime, 1000);
-
-            // Initial display
-            displayTime();
-
-        </script>
-    </div>
 
 </body>
 
