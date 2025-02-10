@@ -1,241 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown Time</title>
-    <link rel="icon" href="https://vclock.com/img/favicons/android-chrome-192x192.png" type="image/png">
+    <title>Countdown</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --matrix-green: #0f0;
+            --hologram-effect: linear-gradient(45deg, 
+                var(--neon-blue) 0%, 
+                var(--neon-purple) 50%, 
+                var(--neon-blue) 100%);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: black;
             margin: 0;
-            padding: 0;
             overflow: hidden;
+            font-family: 'Orbitron', sans-serif;
+            background: #000;
+            color: var(--neon-blue);
+            height: 100vh;
         }
 
-        h1 {
-            margin-top: 50px;
-            color: #343a40;
-            animation: rgbText 5s infinite;
-        }
-
-        @keyframes rgbText {
-            0% {
-                color: #ff0000;
-            }
-            14% {
-                color: #ff7f00;
-            }
-            28% {
-                color: #ffff00;
-            }
-            42% {
-                color: #7fff00;
-            }
-            57% {
-                color: #00ff00;
-            }
-            71% {
-                color: #00ff7f;
-            }
-            85% {
-                color: #00ffff;
-            }
-            100% {
-                color: #007fff;
-            }
+        #canvas3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
         }
 
         .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            padding: 0 20px;
+            position: relative;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
         }
 
-        .input-container {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #ccd3ca8e;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 70px #f5e8dd;
+        .title {
+            font-size: 4rem;
             text-align: center;
+            margin: 2rem 0;
+            text-shadow: 0 0 20px var(--neon-blue);
+            animation: titleGlow 2s ease-in-out infinite;
         }
 
-        .input-container label {
-            font-size: 18px;
-            margin-bottom: 5px;
-            color: #495057;
+        @keyframes titleGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        .input-container input[type="datetime-local"] {
-            font-size: 18px;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
+        .control-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        .hologram-input {
             width: 100%;
-            max-width: 250px;
-            background-color: #f8f9fa;
-            color: #495057;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: border-color 0.3s, box-shadow 0.3s;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
         }
 
-        .input-container input[type="datetime-local"]:focus {
-            border-color: #007bff;
+        .hologram-input:focus {
             outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            box-shadow: 0 0 20px var(--neon-blue);
         }
 
-        #start-btn {
-            font-size: 18px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+        .quantum-button {
+            background: var(--hologram-effect);
+            color: #000;
+            padding: 1rem 2rem;
             border: none;
             border-radius: 5px;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 20px;
-            outline: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
         }
 
-        #start-btn:hover {
-            background-color: #0056b3;
+        .quantum-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255,255,255,0.2), 
+                transparent);
+            transform: rotate(45deg);
+            animation: buttonFlow 3s infinite;
         }
 
-        #timer {
-            font-size: 80px;
-            margin-top: 100px;
-            color: #dc3545;
-            display: none;
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #ccd3ca8e;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 70px #f5e8dd;
-            text-align: center;
-            animation: rgbText 5s infinite;
+        @keyframes buttonFlow {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
         }
 
-        #timer.show {
-            opacity: 1;
+        .time-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 3rem auto;
         }
 
-        #timer.expired {
-            color: #6c757d;
+        .time-unit {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        #countdown-info {
-            font-size: 20px;
-            margin-top: 20px;
-            color: #28a745;
+        .time-value {
+            font-size: 3rem;
+            text-shadow: 0 0 10px var(--neon-blue);
+            position: relative;
+            z-index: 1;
         }
 
-        #clock {
-            font-size: 36px;
-            margin-top: 50px;
-            color: #343a40;
-            animation: rgbText 5s infinite;
+        .time-label {
+            font-size: 1rem;
+            color: var(--neon-purple);
+            text-transform: uppercase;
         }
 
-        @media (max-width: 600px) {
-            #timer {
-                font-size: 40px;
+        .binary-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: var(--matrix-green);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .time-matrix {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 2.5rem;
             }
         }
     </style>
 </head>
-
 <body>
-
+    <canvas id="canvas3d"></canvas>
+    
     <div class="container">
-        <h1>Countdown Timer</h1>
-
-        <div class="input-container" id="input-container">
-            <label for="datetime">Choose Date and Time:</label>
-            <input type="datetime-local" id="datetime" name="datetime" aria-label="Choose Date and Time">
+        <h1 class="title">QUANTUM COUNTDOWN</h1>
+        
+        <div class="control-panel">
+            <input type="datetime-local" class="hologram-input" id="datetime">
+            <button class="quantum-button" onclick="startCountdown()">
+                INITIATE SEQUENCE
+            </button>
         </div>
 
-        <button id="start-btn" aria-label="Start Countdown" onclick="startCountdown()">Start Countdown</button>
-
-        <div id="timer" aria-live="polite" role="timer" aria-atomic="true"></div>
-
-        <p id="countdown-info"></p>
-
-        <div id="clock"></div>
+        <div class="time-matrix" id="timer"></div>
     </div>
 
     <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas3d') });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const particles = new THREE.BufferGeometry();
+        const particleCount = 5000;
+        const posArray = new Float32Array(particleCount * 3);
+
+        for(let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 5;
+        }
+
+        particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const material = new THREE.PointsMaterial({
+            size: 0.005,
+            color: 0x00ff00
+        });
+
+        const particleMesh = new THREE.Points(particles, material);
+        scene.add(particleMesh);
+
+        camera.position.z = 2;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particleMesh.rotation.x += 0.001;
+            particleMesh.rotation.y += 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
+
         function startCountdown() {
-            document.getElementById('input-container').style.display = 'none';
-            document.getElementById('start-btn').style.display = 'none';
+            const targetDate = new Date(document.getElementById('datetime').value);
+            if(!targetDate.getTime()) {
+                alert('INVALID TEMPORAL COORDINATES');
+                return;
+            }
 
-            const timer = document.getElementById('timer');
-            timer.style.display = 'block';
-            setTimeout(() => timer.classList.add('show'), 100);
+            document.querySelector('.control-panel').style.display = 'none';
+            
+            const timerElement = document.getElementById('timer');
+            let animationFrame;
 
-            const selectedDateTime = new Date(document.getElementById('datetime').value).getTime();
-
-            const countdown = setInterval(function () {
-                const now = new Date().getTime();
-                const distance = selectedDateTime - now;
+            function updateTimer() {
+                const now = new Date();
+                const distance = targetDate - now;
 
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                timerElement.innerHTML = `
+                    <div class="time-unit">
+                        <div class="time-value">${days}</div>
+                        <div class="time-label">Quantum Days</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value">${hours}</div>
+                        <div class="time-label">Temporal Hours</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value">${minutes}</div>
+                        <div class="time-label">Chronal Minutes</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value">${seconds}</div>
+                        <div class="time-label">Singularity Seconds</div>
+                    </div>
+                `;
 
-                const countdownTitle = `${days}d ${hours}h ${minutes}m ${seconds}s until expiry`;
-                document.title = countdownTitle;
-
-                const countdownStartTime = new Date(selectedDateTime).toLocaleString();
-                document.getElementById('countdown-info').innerText = `Countdown will End at: ${countdownStartTime}`;
-
-                if (distance < 0) {
-                    clearInterval(countdown);
-                    timer.innerHTML = 'EXPIRED';
-                    timer.classList.add('expired');
-                    document.title = 'Countdown Expired';
+                if(distance < 0) {
+                    cancelAnimationFrame(animationFrame);
+                    timerElement.innerHTML = `
+                        <div class="time-unit" style="grid-column:1/-1;border-color:#ff0000;">
+                            <div class="time-value" style="color:#ff0000;">TEMPORAL ANOMALY DETECTED</div>
+                            <div class="time-label">TIMELINE DESYNCHRONIZED</div>
+                        </div>
+                    `;
+                    initiateQuantumFlare();
+                } else {
+                    animationFrame = requestAnimationFrame(updateTimer);
                 }
-            }, 1000);
+            }
+            updateTimer();
         }
 
-        function displayTime() {
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        function initiateQuantumFlare() {
+            const flare = new THREE.PointLight(0xff0000, 1, 100);
+            flare.position.set(0,0,5);
+            scene.add(flare);
+
+            setTimeout(() => {
+                scene.remove(flare);
+            }, 2000);
+        }
+        function createBinaryRain() {
+            const characters = '01';
+            const container = document.createElement('div');
+            container.className = 'binary-rain';
+            
+            for(let i = 0; i < 100; i++) {
+                const element = document.createElement('div');
+                element.style.position = 'absolute';
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.animation = `matrixFall ${Math.random() * 10 + 5}s linear infinite`;
+                element.textContent = Array(50).fill().map(() => 
+                    characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+                container.appendChild(element);
+            }
+            document.body.appendChild(container);
         }
 
-        setInterval(displayTime, 1000);
-
-        displayTime();
-
-        function breakReminder() {
-            alert('Time for a 10-minute break!');
-        }
-
-    
-        setInterval(breakReminder, 2 * 60 * 60 * 1000);
+        createBinaryRain();
     </script>
-
 </body>
-
 </html>
