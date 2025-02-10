@@ -3,96 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Neon Chronos</title>
     <style>
         :root {
-            --neon-blue: #00f3ff;
+            --neon-cyan: #0ff;
             --neon-purple: #bc13fe;
-            --matrix-green: #0f0;
-            --hologram-effect: linear-gradient(45deg, 
-                var(--neon-blue) 0%, 
-                var(--neon-purple) 50%, 
-                var(--neon-blue) 100%);
+            --dark-cosmos: #000;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
+            min-height: 100vh;
+            background: var(--dark-cosmos);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
-            font-family: 'Orbitron', sans-serif;
-            background: #000;
-            color: var(--neon-blue);
-            height: 100vh;
-        }
-
-        #canvas3d {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
         }
 
         .container {
             position: relative;
+            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 0 50px var(--neon-purple);
+            transform: translateZ(20px);
+        }
+
+        .time-cube {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            perspective: 1000px;
+        }
+
+        .time-unit {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.4s ease;
+        }
+
+        .time-card {
+            background: linear-gradient(145deg, 
+                rgba(0, 255, 255, 0.1), 
+                rgba(188, 19, 254, 0.1));
             padding: 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .title {
-            font-size: 4rem;
-            text-align: center;
-            margin: 2rem 0;
-            text-shadow: 0 0 20px var(--neon-blue);
-            animation: titleGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes titleGlow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .control-panel {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid var(--neon-blue);
             border-radius: 15px;
-            padding: 2rem;
-            max-width: 600px;
-            margin: 2rem auto;
-            box-shadow: 0 0 30px var(--neon-blue);
-        }
-
-        .hologram-input {
-            width: 100%;
-            padding: 1rem;
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-size: 1.2rem;
-            margin: 1rem 0;
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 30px var(--neon-purple),
+                        inset 0 0 20px var(--neon-cyan);
+            transform: translateZ(20px);
             transition: all 0.3s ease;
         }
 
-        .hologram-input:focus {
-            outline: none;
-            box-shadow: 0 0 20px var(--neon-blue);
+        .time-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, 
+                var(--neon-cyan), 
+                var(--neon-purple));
+            z-index: -1;
+            filter: blur(20px);
+            opacity: 0.3;
+            border-radius: 15px;
         }
 
-        .quantum-button {
-            background: var(--hologram-effect);
-            color: #000;
-            padding: 1rem 2rem;
+        .time-value {
+            font-size: 4rem;
+            background: linear-gradient(45deg, 
+                var(--neon-cyan), 
+                var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px var(--neon-purple);
+            transform: translateZ(30px);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateZ(30px) translateY(0); }
+            50% { transform: translateZ(30px) translateY(-10px); }
+        }
+
+        .time-label {
+            color: var(--neon-purple);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        input[type="datetime-local"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="datetime-local"]:focus {
+            outline: none;
+            box-shadow: 0 0 30px var(--neon-cyan);
+        }
+
+        button {
+            background: linear-gradient(45deg, 
+                var(--neon-cyan), 
+                var(--neon-purple));
             border: none;
-            border-radius: 5px;
-            font-size: 1.2rem;
+            padding: 1rem 3rem;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            text-transform: uppercase;
         }
 
-        .quantum-button::after {
+        button::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -104,196 +147,184 @@
                 rgba(255,255,255,0.2), 
                 transparent);
             transform: rotate(45deg);
-            animation: buttonFlow 3s infinite;
+            animation: btnFlow 2s infinite;
         }
 
-        @keyframes buttonFlow {
+        @keyframes btnFlow {
             0% { transform: translateX(-100%) rotate(45deg); }
             100% { transform: translateX(100%) rotate(45deg); }
         }
 
-        .time-matrix {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            max-width: 1000px;
-            margin: 3rem auto;
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px var(--neon-purple);
         }
 
-        .time-unit {
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid var(--neon-blue);
-            border-radius: 15px;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .time-value {
-            font-size: 3rem;
-            text-shadow: 0 0 10px var(--neon-blue);
-            position: relative;
-            z-index: 1;
-        }
-
-        .time-label {
-            font-size: 1rem;
-            color: var(--neon-purple);
-            text-transform: uppercase;
-        }
-
-        .binary-rain {
-            position: absolute;
-            top: 0;
-            left: 0;
-            color: var(--matrix-green);
-            opacity: 0.3;
+        .stars {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
+            z-index: -1;
         }
 
-        @media (max-width: 768px) {
-            .time-matrix {
-                grid-template-columns: 1fr;
-            }
-            
-            .title {
-                font-size: 2.5rem;
-            }
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas3d"></canvas>
+    <div class="stars" id="stars"></div>
     
     <div class="container">
-        <h1 class="title">QUANTUM COUNTDOWN</h1>
-        
-        <div class="control-panel">
-            <input type="datetime-local" class="hologram-input" id="datetime">
-            <button class="quantum-button" onclick="startCountdown()">
-                INITIATE SEQUENCE
-            </button>
-        </div>
-
-        <div class="time-matrix" id="timer"></div>
+        <input type="datetime-local" id="dateInput">
+        <button onclick="startCountdown()">Activate Chronos</button>
+        <div class="time-cube" id="countdown"></div>
     </div>
 
     <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#canvas3d') });
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        class TimeLord {
+            constructor() {
+                this.animation = null;
+                this.targetDate = null;
+                this.loadState();
+                this.createStars();
+            }
 
-        const particles = new THREE.BufferGeometry();
-        const particleCount = 5000;
-        const posArray = new Float32Array(particleCount * 3);
+            createStars() {
+                const stars = document.getElementById('stars');
+                for(let i = 0; i < 200; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.width = `${Math.random() * 3}px`;
+                    star.style.height = star.style.width;
+                    star.style.setProperty('--duration', `${Math.random() * 3 + 1}s`);
+                    stars.appendChild(star);
+                }
+            }
 
-        for(let i = 0; i < particleCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 5;
+            loadState() {
+                const savedDate = localStorage.getItem('chronosDate');
+                if (savedDate) {
+                    this.targetDate = new Date(savedDate);
+                    if (this.targetDate > Date.now()) this.initUI();
+                }
+            }
+
+            saveState() {
+                localStorage.setItem('chronosDate', this.targetDate.toISOString());
+            }
+
+            initUI() {
+                document.getElementById('countdown').innerHTML = `
+                    <div class="time-unit">
+                        <div class="time-card">
+                            <div class="time-value">00</div>
+                            <div class="time-label">Days</div>
+                        </div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-card">
+                            <div class="time-value">00</div>
+                            <div class="time-label">Hours</div>
+                        </div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-card">
+                            <div class="time-value">00</div>
+                            <div class="time-label">Minutes</div>
+                        </div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-card">
+                            <div class="time-value">00</div>
+                            <div class="time-label">Seconds</div>
+                        </div>
+                    </div>
+                `;
+                this.startTemporalFlow();
+            }
+
+            startTemporalFlow() {
+                const animate = () => {
+                    const now = new Date();
+                    const diff = this.targetDate - now;
+
+                    if (diff <= 0) {
+                        this.handleQuantumCollapse();
+                        return;
+                    }
+
+                    const days = Math.floor(diff / 86400000);
+                    const hours = Math.floor((diff % 86400000) / 3600000);
+                    const minutes = Math.floor((diff % 3600000) / 60000);
+                    const seconds = Math.floor((diff % 60000) / 1000);
+
+                    document.querySelectorAll('.time-value').forEach((el, i) => {
+                        el.textContent = [days, hours, minutes, seconds][i]
+                            .toString().padStart(2, '0');
+                    });
+
+                    this.animation = requestAnimationFrame(animate);
+                };
+                animate();
+            }
+
+            handleQuantumCollapse() {
+                document.getElementById('countdown').innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;">
+                        <div class="time-card" style="color:var(--neon-cyan);">
+                            TEMPORAL SYNCHRONIZATION ACHIEVED
+                        </div>
+                    </div>
+                `;
+                localStorage.removeItem('chronosDate');
+            }
         }
 
-        particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const material = new THREE.PointsMaterial({
-            size: 0.005,
-            color: 0x00ff00
-        });
-
-        const particleMesh = new THREE.Points(particles, material);
-        scene.add(particleMesh);
-
-        camera.position.z = 2;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            particleMesh.rotation.x += 0.001;
-            particleMesh.rotation.y += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();
+        const timeLord = new TimeLord();
 
         function startCountdown() {
-            const targetDate = new Date(document.getElementById('datetime').value);
-            if(!targetDate.getTime()) {
-                alert('INVALID TEMPORAL COORDINATES');
+            const input = document.getElementById('dateInput');
+            const selectedDate = new Date(input.value);
+            
+            if (!input.value || selectedDate < new Date()) {
+                input.style.animation = 'shake 0.5s';
+                setTimeout(() => input.style.animation = '', 500);
                 return;
             }
 
-            document.querySelector('.control-panel').style.display = 'none';
-            
-            const timerElement = document.getElementById('timer');
-            let animationFrame;
+            timeLord.targetDate = selectedDate;
+            timeLord.saveState();
+            timeLord.initUI();
+        }
 
-            function updateTimer() {
-                const now = new Date();
-                const distance = targetDate - now;
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                timerElement.innerHTML = `
-                    <div class="time-unit">
-                        <div class="time-value">${days}</div>
-                        <div class="time-label">Quantum Days</div>
-                    </div>
-                    <div class="time-unit">
-                        <div class="time-value">${hours}</div>
-                        <div class="time-label">Temporal Hours</div>
-                    </div>
-                    <div class="time-unit">
-                        <div class="time-value">${minutes}</div>
-                        <div class="time-label">Chronal Minutes</div>
-                    </div>
-                    <div class="time-unit">
-                        <div class="time-value">${seconds}</div>
-                        <div class="time-label">Singularity Seconds</div>
-                    </div>
-                `;
-
-                if(distance < 0) {
-                    cancelAnimationFrame(animationFrame);
-                    timerElement.innerHTML = `
-                        <div class="time-unit" style="grid-column:1/-1;border-color:#ff0000;">
-                            <div class="time-value" style="color:#ff0000;">TEMPORAL ANOMALY DETECTED</div>
-                            <div class="time-label">TIMELINE DESYNCHRONIZED</div>
-                        </div>
-                    `;
-                    initiateQuantumFlare();
-                } else {
-                    animationFrame = requestAnimationFrame(updateTimer);
-                }
+        window.addEventListener('load', () => {
+            if (timeLord.targetDate) {
+                document.getElementById('dateInput').value = 
+                    timeLord.targetDate.toISOString().slice(0, 16);
             }
-            updateTimer();
-        }
+        });
 
-        function initiateQuantumFlare() {
-            const flare = new THREE.PointLight(0xff0000, 1, 100);
-            flare.position.set(0,0,5);
-            scene.add(flare);
-
-            setTimeout(() => {
-                scene.remove(flare);
-            }, 2000);
-        }
-        function createBinaryRain() {
-            const characters = '01';
-            const container = document.createElement('div');
-            container.className = 'binary-rain';
-            
-            for(let i = 0; i < 100; i++) {
-                const element = document.createElement('div');
-                element.style.position = 'absolute';
-                element.style.left = `${Math.random() * 100}%`;
-                element.style.animation = `matrixFall ${Math.random() * 10 + 5}s linear infinite`;
-                element.textContent = Array(50).fill().map(() => 
-                    characters.charAt(Math.floor(Math.random() * characters.length))).join('');
-                container.appendChild(element);
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
             }
-            document.body.appendChild(container);
-        }
-
-        createBinaryRain();
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
